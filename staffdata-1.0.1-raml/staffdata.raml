@@ -1,0 +1,107 @@
+#%RAML 1.0
+title: Staff Data API
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/2e58c4b1-b46b-4780-802b-e97b402ff1f5
+
+
+types:
+  employee: !include DataTypes/employees.raml
+  employees: !include DataTypes/Employees-req.raml  
+
+traits:
+   jwt:
+    headers:
+      authorization:
+        description: Bearer <JWT>
+        type: string
+    responses:
+      400:
+        description: Token was not provided.
+      401:
+        description: Bad or expired token. To fix, you should re-authenticate the user.
+      403:
+        description: The client id validation failed.
+      503:
+        description: Error communicating with JWKS server.
+
+        
+/accounts:
+  get:
+    description: This method will list staff details
+    displayName: Get staff member 
+    queryParameters:
+      id:
+        type: string
+        example: "stf1234"
+    responses:
+      200:
+        body:
+          application/json:
+            type: employee
+            example: !include examples/get-response-ex.json
+ 
+  post:
+    description: This method is to create a new staff member 
+    displayName: Create staff member
+    is: [jwt]
+    body:
+      application/json:
+        type: employee
+        example: !include examples/post-example.json
+    responses:
+      201:
+        body:
+          application/json: 
+            example: !include examples/post-response-example.json  
+      400:
+        body:
+          application/json:
+            example: 
+             {"message" : "please use the correct format"}
+             
+/{id}:
+    description: |
+      * Retrieving specific staff member's details
+      * Updating specific staff member's details
+      * Deleting specific staff member's details
+    uriParameters: 
+     id:
+       type: string | integer
+       example: "202435"
+   
+    get:
+      description: Retreive staff member's information by ID
+      displayName: Get staff member by ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: employee
+              example: !include examples/get-response-ex.json
+
+    patch:
+      description: Update staff member's information by ID
+      displayName: Update staff member by ID   
+      body:                  
+        application/json:
+          type: employees
+          example: !include examples/put-req-example.json
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {"message": "Staff member Details Updated"}
+       
+
+    delete:
+      description: Offboarding a staff member by ID
+      displayName: Delete staff member by ID
+      is: [jwt]
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {"message" : "successfully deleted"}
+        
+                          
